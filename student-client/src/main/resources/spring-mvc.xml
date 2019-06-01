@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-4.2.xsd 
+http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context-4.2.xsd 
+http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--开启注解-->
+    <context:annotation-config/>
+    <!--扫描路径-->
+    <context:component-scan base-package="com.dubbodemo.me.controller"/>
+    <!--1、配置别名，目的是在后台好区分到底是谁， name 可以随便写，最好语义化-->
+    <dubbo:application name="student-client"/>
+    <!--2找到注册中心-->
+    <dubbo:registry address="127.0.0.1:2181" protocol="zookeeper" />
+    <!--3告诉注册中心你要什么 id可以随便写-->
+    <dubbo:reference interface="com.dubbodemo.me.api.StudentService" id="studentServiceImpl"/>
+    <!--因为我是消费者，不提供服务，所以不用配置端口 当我也是服务提供者时需要配置-->
+
+    <!--json转换 我们将实体类直接返回 它会帮我们转成json-->
+    <mvc:annotation-driven />
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="objectMapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="dateFormat">
+                            <bean class="java.text.SimpleDateFormat">
+                                <constructor-arg type="java.lang.String" value="yyyy-MM-dd" />
+                            </bean>
+                        </property>
+                    </bean>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+</beans>

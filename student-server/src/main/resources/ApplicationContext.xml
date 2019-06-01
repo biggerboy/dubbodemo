@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-4.2.xsd http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+    <!--开启注解-->
+    <context:annotation-config/>
+    <!--扫描注解-->
+    <context:component-scan base-package="com.dubbodemo.me.service"/>
+    <!--dubbo可以和spring无缝整合-->
+    <!--配置目的：找到注册中心，告诉注册中心，是谁在向它注册，IP是多少，提供服务的端口是多少-->
+
+    <!--1、配置别名，目的是在后台好区分到底是谁， name 可以随便写，最好语义化-->
+    <dubbo:application name="student-server"/>
+
+    <!--2、注册服务， zookeeper 注册中心； address 注册中心的地址；protocol 注册中心的协议-->
+    <dubbo:registry protocol="zookeeper" address="127.0.0.1:2181"/>
+
+    <!--3、告诉注册中心我要提供的服务 interface 代表发布的服务的类型 ref代表要发布的是哪个服务（具体的实现） timeout超时时间-->
+    <dubbo:service interface="com.dubbodemo.me.api.StudentService" ref="studentServiceImpl" timeout="6000"/>
+
+    <!--4、配置服务的端口，因为消费者必须通过IP+端口才能访问我的服务，我们在注册中心注册时注册中心就已经知道我们的IP了，
+    所以现在只需要告诉他端口 端口可以随便写，前提不可被其他程序占用。一个dubbo被发布时必须独占一个端口-->
+    <dubbo:protocol name="dubbo" port="12003"/>
+</beans>
